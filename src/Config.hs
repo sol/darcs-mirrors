@@ -9,6 +9,7 @@ repositories :: [Repository]
 repositories = [
     Repository "QuickCheck"       "http://code.haskell.org/QuickCheck/devel"
   , Repository "HUnit"            "http://code.haskell.org/HUnit/"
+  , Repository "Cabal"            "http://darcs.haskell.org/cabal/"
   ]
 
 organization :: String
