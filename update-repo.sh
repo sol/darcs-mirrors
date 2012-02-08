@@ -24,5 +24,12 @@ else
 fi
 
 # create/update git repo
-mkdir -p "$gitdir"
+if [ ! -d "$gitdir" ]; then
+    mkdir -p "$gitdir"
+    cd "$gitdir"
+    git init
+    git remote add origin git@github.com:darcs-mirrors/$name.git
+fi
+
 cd "$gitdir" && "$darcs_to_git" "$darcsdir"
+git push origin master
