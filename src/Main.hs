@@ -3,9 +3,11 @@ module Main (main) where
 
 import           Prelude hiding (error)
 import           Data.Foldable (forM_, find)
+import           Control.Monad (forever)
 import qualified Data.ByteString.Char8 as B
 import           System.Cmd (rawSystem)
 import           System.Exit
+import           Control.Concurrent
 
 import qualified Github.Repos as Github
 import           Logging
@@ -28,8 +30,20 @@ update (Repository name url) = do
     ExitSuccess -> return ()
     ExitFailure _ -> $(logError "updating {name} failed!")
 
+loop :: Chan Repository -> IO ()
+loop chan = forever (readChan chan >>= update >> delaySeconds 5)
+
 main :: IO ()
 main = do
+  initialize
+  chan <- newChan
+  forM_ repositories $ \r -> forkIO $ forever $ do
+    delayMinutes 10
+    writeChan chan r
+  loop chan
+
+initialize :: IO ()
+initialize = do
   auth <- readAccountFile
   r <- Github.organizationRepos organization
   case r of
@@ -48,3 +62,12 @@ readAccountFile = do
   case B.words input of
     [user, password] -> return (user, password)
     _ -> $(error "invalid account file: {input}")
+
+delaySeconds :: Int -> IO ()
+delaySeconds s = threadDelay (s * 1000000)
+
+delayMinutes :: Int -> IO ()
+delayMinutes m = delaySeconds (m * 60)
+
+delayHours :: Int -> IO ()
+delayHours h = delayMinutes (h * 60)
