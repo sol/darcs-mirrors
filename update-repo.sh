@@ -18,7 +18,7 @@ gitdir="$repos/$name"
 
 # get/update darcs repo
 if [ -d "$darcsdir" ]; then
-    cd "$darcsdir" && darcs pull
+    cd "$darcsdir" && darcs pull --all
 else
     darcs get "$url" "$darcsdir"
 fi
